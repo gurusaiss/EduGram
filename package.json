@@ -9,6 +9,7 @@
     "lint": "next lint",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d out"
+    
   },
   "homepage": "https://gurusaiss.github.io/edugram-app",
   "dependencies": {

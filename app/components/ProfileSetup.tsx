@@ -65,7 +65,8 @@ export default function ProfileSetup({ onComplete }: ProfileSetupProps) {
         branch: formData.branch,
         year: formData.year,
         skills: formData.skills,
-        interests: formData.interests
+        interests: formData.interests,
+        bio: `${formData.year} year ${formData.branch} student at ${formData.college}. Passionate about ${formData.interests.slice(0, 2).join(' and ')}.`
       }
       onComplete(user)
     }

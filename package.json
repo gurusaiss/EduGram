@@ -4,14 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d out"
-    
+    "lint": "next lint"
   },
-  "homepage": "https://gurusaiss.github.io/edugram-app",
   "dependencies": {
     "framer-motion": "^10.16.0",
     "lucide-react": "^0.292.0",

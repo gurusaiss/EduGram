@@ -9,10 +9,15 @@ interface ProfileSectionProps {
   studiedCards: number
   watchedReels: number
   joinedGroups: number
+  onLogout: () => void
+  onUpdateUser: (updatedUser: User) => void
 }
 
-export default function ProfileSection({ user, totalScore, studiedCards, watchedReels, joinedGroups }: ProfileSectionProps) {
+export default function ProfileSection({ user, totalScore, studiedCards, watchedReels, joinedGroups, onLogout, onUpdateUser }: ProfileSectionProps) {
   const [profileActiveTab, setProfileActiveTab] = useState('overview')
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [editedUser, setEditedUser] = useState<User>(user)
+  const [showShareModal, setShowShareModal] = useState(false)
 
   // Dynamic user achievements based on actual progress
   const userAchievements = [
@@ -31,10 +36,24 @@ export default function ProfileSection({ user, totalScore, studiedCards, watched
     ...(studiedCards >= 7 ? [{ id: 5, type: 'achievement', title: 'Unlocked "Study Streak" badge', time: '3 days ago', badge: '📚' }] : [])
   ]
 
+  const handleEditProfile = () => {
+    setIsEditingProfile(true)
+  }
+
+  const handleSaveProfile = () => {
+    onUpdateUser(editedUser)
+    setIsEditingProfile(false)
+  }
+
+  const handleCancelEdit = () => {
+    setEditedUser(user)
+    setIsEditingProfile(false)
+  }
+
   const handleShare = async () => {
     const shareData = {
       title: `${user.name}'s EduGram Profile`,
-      text: `Check out ${user.name}'s learning journey on EduGram! 🎓\n\nCollege: ${user.college}\nBranch: ${user.branch}\nYear: ${user.year}\n\nTotal Score: 2,847 points\nCards Studied: 156\nReels Watched: 89\nGroups Joined: 4`,
+      text: `Check out ${user.name}'s learning journey on EduGram! 🎓\n\nCollege: ${user.college}\nBranch: ${user.branch}\nYear: ${user.year}\n\nTotal Score: ${totalScore} points\nCards Studied: ${studiedCards}\nReels Watched: ${watchedReels}\nGroups Joined: ${joinedGroups}`,
       url: window.location.href
     }
 
@@ -84,85 +103,59 @@ export default function ProfileSection({ user, totalScore, studiedCards, watched
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 overflow-y-auto pb-20">
       <div className="max-w-4xl mx-auto p-4 lg:p-8">
         {/* Profile Header - Instagram Style */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg rounded-3xl shadow-xl p-4 lg:p-8 mb-6 border border-white/20">
-          {/* Profile Photo - Centered */}
-          <div className="flex flex-col items-center text-center">
-            <div className="relative mb-6">
-              <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500 rounded-full p-1">
-                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-2xl lg:text-4xl font-bold drop-shadow-lg">
-                    {user.name.charAt(0).toUpperCase()}
-                  </span>
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl shadow-2xl rounded-3xl p-6 lg:p-8 mb-8 border border-white/20">
+          {/* Profile Header */}
+          <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 mb-8">
+            <div className="relative">
+              <div className="w-24 h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-3xl lg:text-4xl font-bold shadow-xl">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="absolute -top-2 -right-2 bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                Rank #5
+              </div>
+            </div>
+            
+            <div className="flex-1 text-center lg:text-left">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
+                <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">{user.name}</h2>
+                <div className="flex gap-2 mt-2 lg:mt-0">
+                  <button
+                    onClick={handleEditProfile}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg"
+                  >
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg"
+                  >
+                    Share
+                  </button>
                 </div>
               </div>
-              {/* Rank Badge */}
-              <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 lg:px-3 py-1 rounded-full shadow-lg">
-                #42
+              
+              <div className="text-gray-600 dark:text-gray-300 mb-4">
+                <p className="text-lg">{user.college}</p>
+                <p>{user.branch} • {user.year} Year</p>
+                <p className="text-sm mt-2">{user.bio}</p>
               </div>
             </div>
+          </div>
 
-            {/* User Info */}
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white mb-2">
-              {user.name}
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-base lg:text-lg mb-4">
-              @{user.name.toLowerCase().replace(' ', '_')}
-            </p>
-
-            {/* Quick Info Pills */}
-            <div className="flex flex-wrap gap-2 justify-center mb-6">
-              <span className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-3 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-medium shadow-lg">
-                {user.college}
-              </span>
-              <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-medium shadow-lg">
-                {user.branch}
-              </span>
-              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 lg:px-4 py-2 rounded-full text-xs lg:text-sm font-medium shadow-lg">
-                {user.year}
-              </span>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-3 lg:p-4 text-center shadow-lg">
+              <div className="text-xl lg:text-2xl font-bold">{studiedCards}</div>
+              <div className="text-xs opacity-90">Cards Studied</div>
             </div>
-
-            {/* Contact Info */}
-            <div className="text-gray-600 dark:text-gray-300 mb-6 text-sm lg:text-base">
-              <p className="mb-2">📧 {user.name.toLowerCase().replace(' ', '.')}@student.edu</p>
-              <p>📍 {user.college}, India</p>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl p-3 lg:p-4 text-center shadow-lg">
+              <div className="text-xl lg:text-2xl font-bold">{watchedReels}</div>
+              <div className="text-xs opacity-90">Reels Watched</div>
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 w-full sm:w-auto">
-              <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-sm lg:text-base">
-                Edit Profile
-              </button>
-              <button 
-                onClick={handleShare}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-sm lg:text-base"
-              >
-                Share Profile
-              </button>
-              <button className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-sm lg:text-base">
-                Logout
-              </button>
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-2xl p-3 lg:p-4 text-center shadow-lg">
+              <div className="text-xl lg:text-2xl font-bold">{joinedGroups}</div>
+              <div className="text-xs opacity-90">Groups Joined</div>
             </div>
-          </div>
-        </div>
-
-        {/* Stats Cards - Instagram Style */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-2xl p-3 lg:p-4 text-center shadow-lg">
-            <div className="text-xl lg:text-2xl font-bold">{totalScore}</div>
-            <div className="text-xs opacity-90">Total Score</div>
-          </div>
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl p-3 lg:p-4 text-center shadow-lg">
-            <div className="text-xl lg:text-2xl font-bold">{studiedCards}</div>
-            <div className="text-xs opacity-90">Cards Studied</div>
-          </div>
-          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-2xl p-3 lg:p-4 text-center shadow-lg">
-            <div className="text-xl lg:text-2xl font-bold">{watchedReels}</div>
-            <div className="text-xs opacity-90">Reels Watched</div>
-          </div>
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-2xl p-3 lg:p-4 text-center shadow-lg">
-            <div className="text-xl lg:text-2xl font-bold">{joinedGroups}</div>
-            <div className="text-xs opacity-90">Groups Joined</div>
           </div>
         </div>
 

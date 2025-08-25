@@ -6,6 +6,7 @@ export interface User {
   year: string
   skills: string[]
   interests: string[]
+  bio: string
 }
 
 export interface Reel {
